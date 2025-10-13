@@ -301,12 +301,22 @@ const FuneralServiceCalculator = () => {
       const savedData = localStorage.getItem(`candour_funeral_${code.toUpperCase()}`);
       if (savedData) {
         const parsed = JSON.parse(savedData);
+        
+        // Restore all selections
         setSelections(parsed.selections);
-        setStep(parsed.step);
+        
+        // Wait a moment for state to update, then set the step
+        setTimeout(() => {
+          setStep(parsed.step);
+          // Scroll to top of designer
+          designerTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
+        
         return true;
       }
       return false;
     } catch (error) {
+      console.error('Error loading saved progress:', error);
       return false;
     }
   };
@@ -2073,17 +2083,14 @@ const FuneralServiceCalculator = () => {
               Use this code to continue where you left off:
             </p>
             <div className="bg-gray-100 rounded-lg p-6 text-center mb-6">
-              <div className="text-3xl font-bold tracking-widest" style={{ color: colors.primary }}>
+              <div className="text-3xl font-bold tracking-widest mb-2" style={{ color: colors.primary }}>
                 {savedCode}
               </div>
+              <p className="text-xs text-gray-500">Write this down or copy it</p>
             </div>
             <p className="text-sm text-gray-600 mb-4">
               <strong>Save this code</strong> - you'll need it to resume your progress. 
-              You can also bookmark this link:
             </p>
-            <div className="bg-gray-50 p-3 rounded text-xs text-gray-600 break-all mb-6">
-              {window.location.origin + window.location.pathname}?code={savedCode}
-            </div>
             <button
               onClick={() => {
                 // Try modern clipboard API first
