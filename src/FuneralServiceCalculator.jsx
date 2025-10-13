@@ -985,64 +985,64 @@ const FuneralServiceCalculator = () => {
                     <div className="space-y-4">
                       <div className="grid grid-cols-2 gap-3">
                         <div className="flex items-center p-3 rounded-lg" style={{ backgroundColor: colors.bgLight }}>
-                          <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 mr-3" style={{ backgroundColor: colors.accent + '40' }}>
+                          <div className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 mr-3" style={{ backgroundColor: colors.accent + '30' }}>
                             <img 
                               src="https://cdn.prod.website-files.com/66c322edb04e041d40748187/683eeb9c94ad070a45a7bf20_tan-icon-talk.png" 
                               alt="Celebrant" 
-                              className="w-5 h-5 object-contain"
+                              className="w-7 h-7 object-contain"
                             />
                           </div>
-                          <p className="text-xs font-medium text-gray-700">Celebrant Choice</p>
+                          <p className="text-sm font-medium text-gray-700">Celebrant Choice</p>
                         </div>
                         <div className="flex items-center p-3 rounded-lg" style={{ backgroundColor: colors.bgLight }}>
-                          <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 mr-3" style={{ backgroundColor: colors.accent + '40' }}>
+                          <div className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 mr-3" style={{ backgroundColor: colors.accent + '30' }}>
                             <img 
                               src="https://cdn.prod.website-files.com/66c322edb04e041d40748187/683eeb9dcbb9e36f90f43121_tan-icon-flower.png" 
                               alt="Flowers" 
-                              className="w-5 h-5 object-contain"
+                              className="w-7 h-7 object-contain"
                             />
                           </div>
-                          <p className="text-xs font-medium text-gray-700">Floral Tributes</p>
+                          <p className="text-sm font-medium text-gray-700">Floral Tributes</p>
                         </div>
                         <div className="flex items-center p-3 rounded-lg" style={{ backgroundColor: colors.bgLight }}>
-                          <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 mr-3" style={{ backgroundColor: colors.accent + '40' }}>
+                          <div className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 mr-3" style={{ backgroundColor: colors.accent + '30' }}>
                             <img 
                               src="https://cdn.prod.website-files.com/66c322edb04e041d40748187/683eeb9cbaf3e3066708e1da_tan-icon-tree.png" 
                               alt="Coffin" 
-                              className="w-5 h-5 object-contain"
+                              className="w-7 h-7 object-contain"
                             />
                           </div>
-                          <p className="text-xs font-medium text-gray-700">Coffin Selection</p>
+                          <p className="text-sm font-medium text-gray-700">Coffin Selection</p>
                         </div>
                         <div className="flex items-center p-3 rounded-lg" style={{ backgroundColor: colors.bgLight }}>
-                          <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 mr-3" style={{ backgroundColor: colors.accent + '40' }}>
+                          <div className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 mr-3" style={{ backgroundColor: colors.accent + '30' }}>
                             <img 
                               src="https://cdn.prod.website-files.com/66c322edb04e041d40748187/683eeb9c9120f0b561cd05b7_tan-icon-print.png" 
                               alt="Service Booklets" 
-                              className="w-5 h-5 object-contain"
+                              className="w-7 h-7 object-contain"
                             />
                           </div>
-                          <p className="text-xs font-medium text-gray-700">Service Booklets</p>
+                          <p className="text-sm font-medium text-gray-700">Service Booklets</p>
                         </div>
                         <div className="flex items-center p-3 rounded-lg" style={{ backgroundColor: colors.bgLight }}>
-                          <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 mr-3" style={{ backgroundColor: colors.accent + '40' }}>
+                          <div className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 mr-3" style={{ backgroundColor: colors.accent + '30' }}>
                             <img 
                               src="https://cdn.prod.website-files.com/66c322edb04e041d40748187/683eeb9c8466d30e5221a842_tan-icon-cheese.png" 
                               alt="Catering" 
-                              className="w-5 h-5 object-contain"
+                              className="w-7 h-7 object-contain"
                             />
                           </div>
-                          <p className="text-xs font-medium text-gray-700">Catering</p>
+                          <p className="text-sm font-medium text-gray-700">Catering</p>
                         </div>
                         <div className="flex items-center p-3 rounded-lg" style={{ backgroundColor: colors.bgLight }}>
-                          <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 mr-3" style={{ backgroundColor: colors.accent + '40' }}>
+                          <div className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 mr-3" style={{ backgroundColor: colors.accent + '30' }}>
                             <img 
                               src="https://cdn.prod.website-files.com/66c322edb04e041d40748187/683eeb9c9120f0b561cd05b7_tan-icon-print.png" 
                               alt="Memorial Book" 
-                              className="w-5 h-5 object-contain"
+                              className="w-7 h-7 object-contain"
                             />
                           </div>
-                          <p className="text-xs font-medium text-gray-700">Memorial Book</p>
+                          <p className="text-sm font-medium text-gray-700">Memorial Book</p>
                         </div>
                       </div>
 
