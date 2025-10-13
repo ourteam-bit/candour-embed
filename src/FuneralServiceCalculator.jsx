@@ -276,6 +276,26 @@ const FuneralServiceCalculator = () => {
     skipPersonalisation: false
   });
 
+  // Estimate time for each step type
+  const getStepTime = (stepId) => {
+    const quickSteps = ['disposition', 'serviceStyle', 'crematedRemainsDelivery', 'urn', 'memorialHelp'];
+    const mediumSteps = ['package', 'serviceLeader', 'flowers', 'flowerStyle', 'photographicTribute', 'memorialBook'];
+    const longSteps = ['coffinCategory', 'coffinSelection', 'printedMaterials', 'cateringPackage', 'announcements', 'personalisationChoice'];
+    
+    if (quickSteps.includes(stepId)) return 1;
+    if (mediumSteps.includes(stepId)) return 2;
+    if (longSteps.includes(stepId)) return 3;
+    return 2; // default
+  };
+
+  const calculateTimeRemaining = () => {
+    let totalMinutes = 0;
+    for (let i = step + 1; i < filteredSteps.length; i++) {
+      totalMinutes += getStepTime(filteredSteps[i].id);
+    }
+    return Math.max(1, totalMinutes);
+  };
+
   const steps = [
     { id: 'disposition', title: 'Burial or Cremation?', subtitle: 'How would you like to say goodbye?' },
     { id: 'serviceStyle', title: 'Service Style', subtitle: 'What type of service feels right?' },
@@ -2119,16 +2139,21 @@ const FuneralServiceCalculator = () => {
           </p>
         </div>
         
-        <div className="bg-white rounded-lg p-6 shadow-sm">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-sm font-semibold text-gray-600">
-              Step {step + 1} of {filteredSteps.length}
-            </span>
+        <div className="bg-white rounded-lg p-6 shadow-sm mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <span className="text-sm font-semibold text-gray-600">
+                Step {step + 1} of {filteredSteps.length}: {currentStep.title}
+              </span>
+              <span className="text-sm text-gray-500 ml-3">
+                About {calculateTimeRemaining()} {calculateTimeRemaining() === 1 ? 'minute' : 'minutes'} remaining
+              </span>
+            </div>
             <span className="text-sm font-semibold text-gray-600">
               {Math.round(((step + 1) / filteredSteps.length) * 100)}%
             </span>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-3">
+          <div className="w-full bg-gray-200 rounded-full h-3 mb-4">
             <div
               className="h-3 rounded-full transition-all duration-300"
               style={{ 
@@ -2136,6 +2161,67 @@ const FuneralServiceCalculator = () => {
                 backgroundColor: colors.primary
               }}
             />
+          </div>
+          
+          {/* Breadcrumb navigation - Desktop */}
+          <div className="hidden md:flex flex-wrap gap-2 text-xs">
+            {filteredSteps.map((s, index) => {
+              const isCompleted = index < step;
+              const isCurrent = index === step;
+              const isClickable = isCompleted;
+              
+              return (
+                <div key={s.id} className="flex items-center">
+                  <button
+                    onClick={() => {
+                      if (isClickable) {
+                        window.dispatchEvent(new Event('closeAllTooltips'));
+                        setStep(index);
+                      }
+                    }}
+                    disabled={!isClickable}
+                    className={`px-3 py-1 rounded-full transition-all ${
+                      isCurrent
+                        ? 'font-semibold text-white'
+                        : isCompleted
+                        ? 'text-gray-700 hover:bg-gray-100 cursor-pointer'
+                        : 'text-gray-400 cursor-not-allowed'
+                    }`}
+                    style={{
+                      backgroundColor: isCurrent ? colors.primary : 'transparent',
+                    }}
+                  >
+                    {s.title}
+                  </button>
+                  {index < filteredSteps.length - 1 && (
+                    <ChevronRight className="w-3 h-3 mx-1 text-gray-400" />
+                  )}
+                </div>
+              );
+            })}
+          </div>
+          
+          {/* Breadcrumb navigation - Mobile */}
+          <div className="flex md:hidden items-center justify-center text-xs">
+            <span className="text-gray-600">
+              {step > 0 && (
+                <button
+                  onClick={() => {
+                    window.dispatchEvent(new Event('closeAllTooltips'));
+                    setStep(step - 1);
+                  }}
+                  className="text-blue-600 hover:underline mr-2"
+                >
+                  ← {filteredSteps[step - 1].title}
+                </button>
+              )}
+              {step > 0 && step < filteredSteps.length - 1 && " | "}
+              {step < filteredSteps.length - 1 && (
+                <span className="ml-2 text-gray-500">
+                  Next: {filteredSteps[step + 1].title} →
+                </span>
+              )}
+            </span>
           </div>
         </div>
       </div>
