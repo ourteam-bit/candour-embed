@@ -313,23 +313,8 @@ const FuneralServiceCalculator = () => {
 
   // Check for saved progress on load
   React.useEffect(() => {
-    let loadCode = null;
-    
-    // First try iframe's own URL
     const urlParams = new URLSearchParams(window.location.search);
-    loadCode = urlParams.get('code');
-    
-    // If not found and we're in an iframe, try parent window URL
-    if (!loadCode && window.parent !== window) {
-      try {
-        const parentParams = new URLSearchParams(window.parent.location.search);
-        loadCode = parentParams.get('code');
-      } catch (e) {
-        // Cross-origin restriction, can't access parent URL
-        // This is fine, just means we can't get the code from parent
-      }
-    }
-    
+    const loadCode = urlParams.get('code');
     if (loadCode) {
       loadFromCode(loadCode);
     }
@@ -2097,27 +2082,72 @@ const FuneralServiceCalculator = () => {
               You can also bookmark this link:
             </p>
             <div className="bg-gray-50 p-3 rounded text-xs text-gray-600 break-all mb-6">
-              {(() => {
-                // If we're in an iframe, use the parent URL
-                if (window.parent !== window) {
-                  try {
-                    const parentUrl = window.parent.location.href.split('?')[0];
-                    return `${parentUrl}?code=${savedCode}`;
-                  } catch (e) {
-                    // Can't access parent, use current URL
-                    return `${window.location.origin + window.location.pathname}?code=${savedCode}`;
-                  }
-                } else {
-                  return `${window.location.origin + window.location.pathname}?code=${savedCode}`;
-                }
-              })()}
+              {window.location.origin + window.location.pathname}?code={savedCode}
             </div>
             <button
               onClick={() => {
-                navigator.clipboard.writeText(savedCode);
-                alert('Code copied to clipboard!');
+                // Try modern clipboard API first
+                if (navigator.clipboard && window.isSecureContext) {
+                  navigator.clipboard.writeText(savedCode)
+                    .then(() => {
+                      // Change button text temporarily to show success
+                      const button = event.target;
+                      const originalText = button.textContent;
+                      button.textContent = 'Copied!';
+                      button.style.backgroundColor = colors.primaryDark;
+                      setTimeout(() => {
+                        button.textContent = originalText;
+                        button.style.backgroundColor = colors.primary;
+                      }, 2000);
+                    })
+                    .catch(() => {
+                      // Fallback to selection method
+                      const textArea = document.createElement('textarea');
+                      textArea.value = savedCode;
+                      textArea.style.position = 'fixed';
+                      textArea.style.left = '-999999px';
+                      document.body.appendChild(textArea);
+                      textArea.select();
+                      try {
+                        document.execCommand('copy');
+                        const button = event.target;
+                        const originalText = button.textContent;
+                        button.textContent = 'Copied!';
+                        button.style.backgroundColor = colors.primaryDark;
+                        setTimeout(() => {
+                          button.textContent = originalText;
+                          button.style.backgroundColor = colors.primary;
+                        }, 2000);
+                      } catch (err) {
+                        console.error('Copy failed:', err);
+                      }
+                      document.body.removeChild(textArea);
+                    });
+                } else {
+                  // Fallback for older browsers
+                  const textArea = document.createElement('textarea');
+                  textArea.value = savedCode;
+                  textArea.style.position = 'fixed';
+                  textArea.style.left = '-999999px';
+                  document.body.appendChild(textArea);
+                  textArea.select();
+                  try {
+                    document.execCommand('copy');
+                    const button = event.target;
+                    const originalText = button.textContent;
+                    button.textContent = 'Copied!';
+                    button.style.backgroundColor = colors.primaryDark;
+                    setTimeout(() => {
+                      button.textContent = originalText;
+                      button.style.backgroundColor = colors.primary;
+                    }, 2000);
+                  } catch (err) {
+                    console.error('Copy failed:', err);
+                  }
+                  document.body.removeChild(textArea);
+                }
               }}
-              className="w-full py-3 rounded-lg font-semibold text-white"
+              className="w-full py-3 rounded-lg font-semibold text-white transition-all"
               style={{ backgroundColor: colors.primary }}
             >
               Copy Code
