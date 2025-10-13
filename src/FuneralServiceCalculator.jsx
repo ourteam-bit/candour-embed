@@ -255,6 +255,7 @@ const FuneralServiceCalculator = () => {
   const [showLoadModal, setShowLoadModal] = useState(false);
   const [savedCode, setSavedCode] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [enlargedCoffin, setEnlargedCoffin] = useState(null);
   const [selections, setSelections] = useState({
     dispositionType: null,
     serviceStyle: null,
@@ -1424,7 +1425,13 @@ const FuneralServiceCalculator = () => {
                 }}
               >
                 <div className="flex items-start gap-4">
-                  <div className="w-24 h-24 flex-shrink-0 flex items-center justify-center bg-gray-50 rounded-lg">
+                  <div 
+                    className="w-24 h-24 flex-shrink-0 flex items-center justify-center bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors relative group"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setEnlargedCoffin(coffin);
+                    }}
+                  >
                     <img 
                       src={coffin.image} 
                       alt={coffin.name}
@@ -1434,6 +1441,13 @@ const FuneralServiceCalculator = () => {
                         e.target.parentElement.innerHTML = '<div class="text-3xl">⚰️</div>';
                       }}
                     />
+                    <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-opacity rounded-lg flex items-center justify-center">
+                      <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                        <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
+                        </svg>
+                      </div>
+                    </div>
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
@@ -1455,6 +1469,7 @@ const FuneralServiceCalculator = () => {
                         (Total: {formatPrice(coffin.totalPrice)})
                       </div>
                     </div>
+                    <p className="text-xs text-gray-400 mt-1">Click image to enlarge</p>
                   </div>
                   {selections.coffin?.id === coffin.id && (
                     <Check className="w-6 h-6 flex-shrink-0 ml-4" style={{ color: colors.primary }} />
@@ -1462,6 +1477,49 @@ const FuneralServiceCalculator = () => {
                 </div>
               </button>
             ))}
+
+            {/* Enlarged Coffin Modal */}
+            {enlargedCoffin && (
+              <div 
+                className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50"
+                onClick={() => setEnlargedCoffin(null)}
+              >
+                <div 
+                  className="bg-white rounded-xl shadow-2xl max-w-3xl w-full p-6 relative"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <button
+                    onClick={() => setEnlargedCoffin(null)}
+                    className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 z-10"
+                  >
+                    <X className="w-6 h-6" />
+                  </button>
+                  <div className="text-center">
+                    <h3 className="text-2xl font-bold mb-2" style={{ color: colors.primaryDark }}>
+                      {enlargedCoffin.name}
+                    </h3>
+                    <p className="text-gray-600 mb-4">{enlargedCoffin.description}</p>
+                    <div className="bg-gray-50 rounded-lg p-8 mb-4">
+                      <img 
+                        src={enlargedCoffin.image} 
+                        alt={enlargedCoffin.name}
+                        className="w-full h-auto max-h-96 object-contain mx-auto"
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                          e.target.parentElement.innerHTML = '<div class="text-6xl text-gray-400">⚰️<p class="text-lg mt-4">Image not available</p></div>';
+                        }}
+                      />
+                    </div>
+                    <div className="text-2xl font-bold" style={{ color: colors.primary }}>
+                      {enlargedCoffin.price === 0 ? 'Included' : `+${formatPrice(enlargedCoffin.price)}`}
+                      <span className="text-base text-gray-500 ml-2">
+                        (Total: {formatPrice(enlargedCoffin.totalPrice)})
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         );
 
