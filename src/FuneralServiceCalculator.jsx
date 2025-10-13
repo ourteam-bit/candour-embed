@@ -35,22 +35,26 @@ const HelpTooltip = ({ content, id }) => {
     <div className="relative inline-block">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="ml-2 text-gray-400 hover:text-gray-600 transition-colors"
+        className="ml-2 p-2 -m-2 text-gray-400 hover:text-gray-600 transition-colors"
+        style={{ minWidth: '44px', minHeight: '44px' }}
         type="button"
+        aria-label="More information"
       >
         <HelpCircle className="w-4 h-4" />
       </button>
       {isOpen && (
         <div className="absolute z-50 w-64 p-4 bg-white rounded-lg shadow-xl border border-gray-200" 
-             style={{ top: '24px', left: '50%', transform: 'translateX(-50%)' }}>
+             style={{ top: '44px', left: '50%', transform: 'translateX(-50%)' }}>
           <button
             onClick={() => setIsOpen(false)}
-            className="absolute top-2 right-2 text-gray-400 hover:text-gray-600"
+            className="absolute top-2 right-2 p-2 -m-2 text-gray-400 hover:text-gray-600"
+            style={{ minWidth: '44px', minHeight: '44px' }}
             type="button"
+            aria-label="Close"
           >
             <X className="w-4 h-4" />
           </button>
-          <p className="text-sm text-gray-700">{content}</p>
+          <p className="text-sm text-gray-700 pr-8">{content}</p>
         </div>
       )}
     </div>
@@ -609,30 +613,31 @@ const FuneralServiceCalculator = () => {
                 content="Cremation involves reducing the body to ashes, which are returned to the family. Burial is the traditional interment of the body in a cemetery. Both can include meaningful services and ceremonies. Consider your loved one's wishes, religious/cultural traditions, and family preferences."
               />
             </div>
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
               {serviceData.dispositionTypes.map((type) => (
                 <button
                   key={type.id}
                   onClick={() => handleSelection('dispositionType', type.id)}
-                  className={`p-8 rounded-xl transition-all text-left ${
+                  className={`p-6 sm:p-8 rounded-xl transition-all text-left ${
                     selections.dispositionType === type.id
                       ? 'border-4 shadow-lg'
                       : 'border-2 hover:border-4 hover:shadow-md'
                   }`}
                   style={{
                     borderColor: selections.dispositionType === type.id ? colors.primary : '#d1d5db',
-                    backgroundColor: selections.dispositionType === type.id ? colors.bgLight : 'white'
+                    backgroundColor: selections.dispositionType === type.id ? colors.bgLight : 'white',
+                    minHeight: '80px'
                   }}
                 >
                   <div className="flex items-start justify-between mb-3">
-                    <h3 className="text-2xl font-bold" style={{ color: colors.primaryDark }}>
+                    <h3 className="text-xl sm:text-2xl font-bold" style={{ color: colors.primaryDark }}>
                       {type.name}
                     </h3>
                     {selections.dispositionType === type.id && (
-                      <Check className="w-6 h-6" style={{ color: colors.primary }} />
+                      <Check className="w-6 h-6 flex-shrink-0" style={{ color: colors.primary }} />
                     )}
                   </div>
-                  <p className="text-gray-600 text-base">{type.description}</p>
+                  <p className="text-gray-600 text-sm sm:text-base">{type.description}</p>
                 </button>
               ))}
             </div>
@@ -655,27 +660,28 @@ const FuneralServiceCalculator = () => {
                 }
               />
             </div>
-            <div className="grid md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {serviceStyles.map((style) => (
                 <button
                   key={style.id}
                   onClick={() => handleSelection('serviceStyle', style.id)}
-                  className={`p-6 rounded-xl transition-all text-left ${
+                  className={`p-5 sm:p-6 rounded-xl transition-all text-left ${
                     selections.serviceStyle === style.id
                       ? 'border-4 shadow-lg'
                       : 'border-2 hover:border-4 hover:shadow-md'
                   }`}
                   style={{
                     borderColor: selections.serviceStyle === style.id ? colors.primary : '#d1d5db',
-                    backgroundColor: selections.serviceStyle === style.id ? colors.bgLight : 'white'
+                    backgroundColor: selections.serviceStyle === style.id ? colors.bgLight : 'white',
+                    minHeight: '80px'
                   }}
                 >
                   <div className="flex items-start justify-between mb-3">
-                    <h3 className="text-xl font-bold" style={{ color: colors.primaryDark }}>
+                    <h3 className="text-lg sm:text-xl font-bold" style={{ color: colors.primaryDark }}>
                       {style.name}
                     </h3>
                     {selections.serviceStyle === style.id && (
-                      <Check className="w-6 h-6" style={{ color: colors.primary }} />
+                      <Check className="w-6 h-6 flex-shrink-0" style={{ color: colors.primary }} />
                     )}
                   </div>
                   <p className="text-gray-600 text-sm">{style.description}</p>
@@ -1676,14 +1682,14 @@ const FuneralServiceCalculator = () => {
                           type="number"
                           min={material.baseQuantity}
                           step="10"
-                          value={selections.printedMaterialsQuantities[material.id] || material.baseQuantity}
+                          value={selections.printedMaterialsQuantities[material.id] || ''}
                           onChange={(e) => {
-                            const value = parseInt(e.target.value) || material.baseQuantity;
+                            const value = e.target.value === '' ? '' : parseInt(e.target.value);
                             handlePrintedMaterialQuantity(material.id, value);
                           }}
                           onBlur={(e) => {
-                            const value = parseInt(e.target.value) || material.baseQuantity;
-                            if (value < material.baseQuantity) {
+                            const value = parseInt(e.target.value) || 0;
+                            if (value < material.baseQuantity || e.target.value === '') {
                               handlePrintedMaterialQuantity(material.id, material.baseQuantity);
                             }
                           }}
@@ -1849,14 +1855,14 @@ const FuneralServiceCalculator = () => {
                         <input
                           type="number"
                           min="30"
-                          value={selections.cateringGuests || 30}
+                          value={selections.cateringGuests || ''}
                           onChange={(e) => {
-                            const value = parseInt(e.target.value) || 30;
+                            const value = e.target.value === '' ? '' : parseInt(e.target.value);
                             handleSelection('cateringGuests', value, true);
                           }}
                           onBlur={(e) => {
-                            const value = parseInt(e.target.value) || 30;
-                            if (value < 30) {
+                            const value = parseInt(e.target.value) || 0;
+                            if (value < 30 || e.target.value === '') {
                               handleSelection('cateringGuests', 30, true);
                             }
                           }}
@@ -2138,19 +2144,26 @@ const FuneralServiceCalculator = () => {
               <p className="text-gray-600 mb-6">
                 Our compassionate team is here to help guide you through this process and answer any questions you may have.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex flex-col gap-4">
                 <button
                   onClick={() => setShowEmailModal(true)}
-                  className="flex-1 py-4 px-6 rounded-lg font-semibold text-center transition-colors text-white hover:opacity-90 flex items-center justify-center gap-2"
-                  style={{ backgroundColor: colors.primary }}
+                  className="w-full py-4 px-6 rounded-lg font-semibold text-center transition-colors text-white hover:opacity-90 flex items-center justify-center gap-2"
+                  style={{ 
+                    backgroundColor: colors.primary,
+                    minHeight: '48px'
+                  }}
                 >
                   <Mail className="w-5 h-5" />
                   Email This Summary
                 </button>
                 <a
                   href="tel:1300788881"
-                  className="flex-1 py-4 px-6 rounded-lg font-semibold text-center transition-colors border-2 hover:bg-gray-50"
-                  style={{ borderColor: colors.primary, color: colors.primary }}
+                  className="w-full py-4 px-6 rounded-lg font-semibold text-center transition-colors border-2 hover:bg-gray-50 flex items-center justify-center"
+                  style={{ 
+                    borderColor: colors.primary, 
+                    color: colors.primary,
+                    minHeight: '48px'
+                  }}
                 >
                   Call 1300 788 881
                 </a>
@@ -2487,29 +2500,34 @@ const FuneralServiceCalculator = () => {
           <button
             onClick={prevStep}
             disabled={step === 0}
-            className="flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+            className="flex items-center gap-2 px-4 sm:px-6 py-3 sm:py-4 rounded-lg font-semibold transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
             style={{ 
               backgroundColor: step === 0 ? colors.bgMedium : 'white',
               color: colors.primaryDark,
-              border: `2px solid ${colors.primary}`
+              border: `2px solid ${colors.primary}`,
+              minHeight: '44px'
             }}
           >
             <ChevronLeft className="w-5 h-5" />
-            Back
+            <span className="hidden sm:inline">Back</span>
           </button>
 
           {currentStep.id !== 'summary' ? (
             <button
               onClick={nextStep}
               disabled={!canProceed()}
-              className="flex items-center gap-2 px-6 py-3 rounded-lg font-semibold text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              style={{ backgroundColor: colors.primary }}
+              className="flex items-center gap-2 px-4 sm:px-6 py-3 sm:py-4 rounded-lg font-semibold text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{ 
+                backgroundColor: colors.primary,
+                minHeight: '44px' 
+              }}
             >
-              Continue
+              <span className="sm:hidden">Next</span>
+              <span className="hidden sm:inline">Continue</span>
               <ChevronRight className="w-5 h-5" />
             </button>
           ) : (
-            <div className="w-32"></div>
+            <div className="w-24 sm:w-32"></div>
           )}
         </div>
       </div>
