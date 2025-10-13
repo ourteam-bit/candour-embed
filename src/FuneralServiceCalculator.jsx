@@ -251,6 +251,9 @@ const FuneralServiceCalculator = () => {
   const navigationRef = useRef(null);
   const [step, setStep] = useState(0);
   const [showEmailModal, setShowEmailModal] = useState(false);
+  const [showSaveModal, setShowSaveModal] = useState(false);
+  const [showLoadModal, setShowLoadModal] = useState(false);
+  const [savedCode, setSavedCode] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selections, setSelections] = useState({
     dispositionType: null,
@@ -276,25 +279,61 @@ const FuneralServiceCalculator = () => {
     skipPersonalisation: false
   });
 
-  // Estimate time for each step type
-  const getStepTime = (stepId) => {
-    const quickSteps = ['disposition', 'serviceStyle', 'crematedRemainsDelivery', 'urn', 'memorialHelp'];
-    const mediumSteps = ['package', 'serviceLeader', 'flowers', 'flowerStyle', 'photographicTribute', 'memorialBook'];
-    const longSteps = ['coffinCategory', 'coffinSelection', 'printedMaterials', 'cateringPackage', 'announcements', 'personalisationChoice'];
+  // Generate save code
+  const generateSaveCode = () => {
+    const saveData = {
+      step: step,
+      selections: selections,
+      timestamp: new Date().toISOString()
+    };
+    // Create a simple base64 encoded string
+    const jsonString = JSON.stringify(saveData);
+    const encoded = btoa(jsonString).substring(0, 8).toUpperCase();
     
-    if (quickSteps.includes(stepId)) return 1;
-    if (mediumSteps.includes(stepId)) return 2;
-    if (longSteps.includes(stepId)) return 3;
-    return 2; // default
+    // Store in localStorage with the code as key
+    localStorage.setItem(`candour_funeral_${encoded}`, jsonString);
+    return encoded;
   };
 
-  const calculateTimeRemaining = () => {
-    let totalMinutes = 0;
-    for (let i = step + 1; i < filteredSteps.length; i++) {
-      totalMinutes += getStepTime(filteredSteps[i].id);
+  // Load from save code
+  const loadFromCode = (code) => {
+    try {
+      const savedData = localStorage.getItem(`candour_funeral_${code.toUpperCase()}`);
+      if (savedData) {
+        const parsed = JSON.parse(savedData);
+        setSelections(parsed.selections);
+        setStep(parsed.step);
+        return true;
+      }
+      return false;
+    } catch (error) {
+      return false;
     }
-    return Math.max(1, totalMinutes);
   };
+
+  // Check for saved progress on load
+  React.useEffect(() => {
+    let loadCode = null;
+    
+    // First try iframe's own URL
+    const urlParams = new URLSearchParams(window.location.search);
+    loadCode = urlParams.get('code');
+    
+    // If not found and we're in an iframe, try parent window URL
+    if (!loadCode && window.parent !== window) {
+      try {
+        const parentParams = new URLSearchParams(window.parent.location.search);
+        loadCode = parentParams.get('code');
+      } catch (e) {
+        // Cross-origin restriction, can't access parent URL
+        // This is fine, just means we can't get the code from parent
+      }
+    }
+    
+    if (loadCode) {
+      loadFromCode(loadCode);
+    }
+  }, []);
 
   const steps = [
     { id: 'disposition', title: 'Burial or Cremation?', subtitle: 'How would you like to say goodbye?' },
@@ -2032,6 +2071,104 @@ const FuneralServiceCalculator = () => {
 
   return (
     <div ref={designerTopRef} className="min-h-screen py-8 px-4" style={{ background: `linear-gradient(to bottom, ${colors.bgLight}, ${colors.bgMedium})` }}>
+      {/* Save Progress Modal */}
+      {showSaveModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-8 relative">
+            <button
+              onClick={() => setShowSaveModal(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+            >
+              ✕
+            </button>
+            <h3 className="text-2xl font-bold mb-2" style={{ color: colors.primaryDark }}>
+              Your Progress Has Been Saved
+            </h3>
+            <p className="text-gray-600 mb-6">
+              Use this code to continue where you left off:
+            </p>
+            <div className="bg-gray-100 rounded-lg p-6 text-center mb-6">
+              <div className="text-3xl font-bold tracking-widest" style={{ color: colors.primary }}>
+                {savedCode}
+              </div>
+            </div>
+            <p className="text-sm text-gray-600 mb-4">
+              <strong>Save this code</strong> - you'll need it to resume your progress. 
+              You can also bookmark this link:
+            </p>
+            <div className="bg-gray-50 p-3 rounded text-xs text-gray-600 break-all mb-6">
+              {(() => {
+                // If we're in an iframe, use the parent URL
+                if (window.parent !== window) {
+                  try {
+                    const parentUrl = window.parent.location.href.split('?')[0];
+                    return `${parentUrl}?code=${savedCode}`;
+                  } catch (e) {
+                    // Can't access parent, use current URL
+                    return `${window.location.origin + window.location.pathname}?code=${savedCode}`;
+                  }
+                } else {
+                  return `${window.location.origin + window.location.pathname}?code=${savedCode}`;
+                }
+              })()}
+            </div>
+            <button
+              onClick={() => {
+                navigator.clipboard.writeText(savedCode);
+                alert('Code copied to clipboard!');
+              }}
+              className="w-full py-3 rounded-lg font-semibold text-white"
+              style={{ backgroundColor: colors.primary }}
+            >
+              Copy Code
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Load Progress Modal */}
+      {showLoadModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-8 relative">
+            <button
+              onClick={() => setShowLoadModal(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+            >
+              ✕
+            </button>
+            <h3 className="text-2xl font-bold mb-2" style={{ color: colors.primaryDark }}>
+              Continue Your Progress
+            </h3>
+            <p className="text-gray-600 mb-6">
+              Enter your saved code to continue where you left off:
+            </p>
+            <input
+              type="text"
+              id="loadCode"
+              placeholder="Enter your code"
+              className="w-full p-4 text-2xl text-center uppercase border-2 rounded-lg mb-4"
+              style={{ borderColor: colors.primaryLight }}
+              maxLength="8"
+            />
+            <button
+              onClick={() => {
+                const code = document.getElementById('loadCode').value;
+                if (loadFromCode(code)) {
+                  setShowLoadModal(false);
+                } else {
+                  alert('Invalid code. Please check and try again.');
+                }
+              }}
+              className="w-full py-3 rounded-lg font-semibold text-white"
+              style={{ backgroundColor: colors.primary }}
+            >
+              Load Progress
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Email Modal */}
       {showEmailModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-8 relative">
@@ -2137,23 +2274,45 @@ const FuneralServiceCalculator = () => {
           <p className="text-sm text-gray-500 mt-2">
             Tailored • Seamless • Exceptional
           </p>
+          
+          {/* Continue Previous Progress */}
+          {step === 0 && (
+            <div className="mt-4">
+              <button
+                onClick={() => setShowLoadModal(true)}
+                className="text-sm text-gray-600 hover:text-gray-800 underline"
+              >
+                Have a saved code? Continue where you left off
+              </button>
+            </div>
+          )}
         </div>
         
         <div className="bg-white rounded-lg p-6 shadow-sm mb-6">
           <div className="flex items-center justify-between mb-4">
             <div>
               <span className="text-sm font-semibold text-gray-600">
-                Step {step + 1} of {filteredSteps.length}: {currentStep.title}
-              </span>
-              <span className="text-sm text-gray-500 ml-3">
-                About {calculateTimeRemaining()} {calculateTimeRemaining() === 1 ? 'minute' : 'minutes'} remaining
+                {currentStep.title}
               </span>
             </div>
-            <span className="text-sm font-semibold text-gray-600">
-              {Math.round(((step + 1) / filteredSteps.length) * 100)}%
-            </span>
+            <div className="flex items-center gap-2 sm:gap-4">
+              <button
+                onClick={() => {
+                  const code = generateSaveCode();
+                  setSavedCode(code);
+                  setShowSaveModal(true);
+                }}
+                className="text-xs sm:text-sm px-2 sm:px-3 py-1 rounded border hover:bg-gray-50"
+                style={{ borderColor: colors.primary, color: colors.primaryDark }}
+              >
+                Save
+              </button>
+              <span className="text-xs sm:text-sm font-semibold text-gray-600">
+                {Math.round(((step + 1) / filteredSteps.length) * 100)}% Complete
+              </span>
+            </div>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-3 mb-4">
+          <div className="w-full bg-gray-200 rounded-full h-3">
             <div
               className="h-3 rounded-full transition-all duration-300"
               style={{ 
@@ -2163,66 +2322,17 @@ const FuneralServiceCalculator = () => {
             />
           </div>
           
-          {/* Breadcrumb navigation - Desktop */}
-          <div className="hidden md:flex flex-wrap gap-2 text-xs">
-            {filteredSteps.map((s, index) => {
-              const isCompleted = index < step;
-              const isCurrent = index === step;
-              const isClickable = isCompleted;
-              
-              return (
-                <div key={s.id} className="flex items-center">
-                  <button
-                    onClick={() => {
-                      if (isClickable) {
-                        window.dispatchEvent(new Event('closeAllTooltips'));
-                        setStep(index);
-                      }
-                    }}
-                    disabled={!isClickable}
-                    className={`px-3 py-1 rounded-full transition-all ${
-                      isCurrent
-                        ? 'font-semibold text-white'
-                        : isCompleted
-                        ? 'text-gray-700 hover:bg-gray-100 cursor-pointer'
-                        : 'text-gray-400 cursor-not-allowed'
-                    }`}
-                    style={{
-                      backgroundColor: isCurrent ? colors.primary : 'transparent',
-                    }}
-                  >
-                    {s.title}
-                  </button>
-                  {index < filteredSteps.length - 1 && (
-                    <ChevronRight className="w-3 h-3 mx-1 text-gray-400" />
-                  )}
-                </div>
-              );
-            })}
-          </div>
-          
-          {/* Breadcrumb navigation - Mobile */}
-          <div className="flex md:hidden items-center justify-center text-xs">
-            <span className="text-gray-600">
-              {step > 0 && (
-                <button
-                  onClick={() => {
-                    window.dispatchEvent(new Event('closeAllTooltips'));
-                    setStep(step - 1);
-                  }}
-                  className="text-blue-600 hover:underline mr-2"
-                >
-                  ← {filteredSteps[step - 1].title}
-                </button>
-              )}
-              {step > 0 && step < filteredSteps.length - 1 && " | "}
-              {step < filteredSteps.length - 1 && (
-                <span className="ml-2 text-gray-500">
-                  Next: {filteredSteps[step + 1].title} →
-                </span>
-              )}
-            </span>
-          </div>
+          {/* Skip to summary option - always visible except on first step and summary */}
+          {step > 0 && currentStep.id !== 'summary' && (
+            <div className="mt-4 text-center">
+              <button
+                onClick={skipToSummary}
+                className="text-sm text-gray-600 hover:text-gray-800 underline"
+              >
+                Skip remaining questions and go to summary
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
