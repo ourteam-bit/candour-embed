@@ -361,27 +361,8 @@ const FuneralServiceCalculator = () => {
   const handleSelection = (field, value, skipScroll = false) => {
     setSelections(prev => ({ ...prev, [field]: value }));
     
-    const noScrollSteps = ['printedMaterials', 'cateringPackage'];
-    
-    if (!skipScroll && !noScrollSteps.includes(field)) {
-      setTimeout(() => {
-        // More subtle scroll - just ensure the navigation buttons are visible
-        const navElement = navigationRef.current;
-        if (navElement) {
-          const rect = navElement.getBoundingClientRect();
-          const isVisible = rect.top >= 0 && rect.bottom <= window.innerHeight;
-          
-          // Only scroll if the navigation is not fully visible
-          if (!isVisible) {
-            navElement.scrollIntoView({ 
-              behavior: 'smooth', 
-              block: 'end',  // Align to bottom of viewport
-              inline: 'nearest' 
-            });
-          }
-        }
-      }, 100);
-    }
+    // Removed auto-scrolling as it was too disruptive
+    // Users can naturally see the navigation buttons after making a selection
   };
 
   const handleAnnouncementToggle = (announcement) => {
