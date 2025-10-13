@@ -1413,6 +1413,7 @@ const FuneralServiceCalculator = () => {
             {coffins.map((coffin) => (
               <button
                 key={coffin.id}
+                type="button"
                 onClick={() => handleSelection('coffin', coffin)}
                 className={`w-full p-6 rounded-xl transition-all text-left ${
                   selections.coffin?.id === coffin.id
@@ -1428,7 +1429,9 @@ const FuneralServiceCalculator = () => {
                   <div 
                     className="w-24 h-24 flex-shrink-0 flex items-center justify-center bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors relative group"
                     onClick={(e) => {
+                      e.preventDefault();
                       e.stopPropagation();
+                      console.log('Setting enlarged coffin:', coffin);
                       setEnlargedCoffin(coffin);
                     }}
                   >
@@ -1481,16 +1484,19 @@ const FuneralServiceCalculator = () => {
             {/* Enlarged Coffin Modal */}
             {enlargedCoffin && (
               <div 
-                className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50"
+                className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4"
+                style={{ zIndex: 9999 }}
                 onClick={() => setEnlargedCoffin(null)}
               >
                 <div 
                   className="bg-white rounded-xl shadow-2xl max-w-3xl w-full p-6 relative"
+                  style={{ zIndex: 10000 }}
                   onClick={(e) => e.stopPropagation()}
                 >
                   <button
                     onClick={() => setEnlargedCoffin(null)}
-                    className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 z-10"
+                    className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+                    style={{ zIndex: 10001 }}
                   >
                     <X className="w-6 h-6" />
                   </button>
